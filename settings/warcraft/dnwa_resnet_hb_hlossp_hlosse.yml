@@ -1,0 +1,70 @@
+exp_name: "dnwa_resnet_hb_hlossp_hlosse"
+max_epochs: 50
+seed: 1234
+batch_size: 64
+
+data:
+  dataset_name: "warcraft12"
+  path: "/ext/data/warcraft"
+
+model:
+  name: "dnwa"
+  params:
+    epsilon: 0.0
+    activation: "norm"
+    range: [ 1.0, 10.0 ]
+    weights_extractor:
+      name: "resnet"
+      params:
+        mean_features: True
+        in_channels: 3
+        out_channels: 1
+    heuristic_extractor:
+      name: "resnet"
+      params:
+        in_channels: 4
+        out_channels: 1
+
+solver:
+  name: "hb"
+  params:
+    lambda_val: 20.0
+    tau_val: 3.46
+
+loss:
+  loss_component_1:
+    name: "hlossp"
+    params:
+      coefficient: 1.0
+  loss_component_2:
+    name: "hlosse"
+    params:
+      coefficient: 0.1
+
+early_stopping:
+  patience: 5
+  dataset: 'validation'
+  metric: 'validation/loss'
+  mode: 'min'
+  warmup: 10
+
+loggers:
+  img_logs: 32
+  tqdm:
+    dynamic_ncols: True
+
+  neptune:
+    project_name: "${env:NEPTUNE_USER}/warcraft-final"
+    offline_mode: False
+    tags: [
+        "warcraft",
+        "dnwa",
+        "resnet",
+        "hb",
+        "hlosse",
+        "hlossp",
+    ]
+
+cudnn:
+  benchmark: False
+  deterministic: True

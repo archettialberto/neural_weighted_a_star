@@ -1,0 +1,58 @@
+exp_name: "node_resnet_nn_hlosse"
+max_epochs: 40
+seed: 1234
+batch_size: 16
+
+data:
+  dataset_name: "pkmn"
+  path: "/ext/data/pkmn"
+
+model:
+  name: "node"
+  params:
+    activation: "sigm"
+    feature_extractor:
+      name: "resnet_pad"
+      params:
+        in_channels: 5
+        out_channels: 1
+        x_max: 20
+        y_max: 20
+
+solver:
+  name: "nn"
+  params:
+    tau_val: 4.47
+
+loss:
+  loss_component_1:
+    name: "hlosse"
+    params:
+      coefficient: 1.0
+
+early_stopping:
+  patience: 5
+  dataset: 'validation'
+  metric: 'validation/loss'
+  mode: 'min'
+  warmup: 10
+
+loggers:
+  img_logs: 16
+  tqdm:
+    dynamic_ncols: True
+
+  neptune:
+    project_name: "${env:NEPTUNE_USER}/pkmn-final"
+    offline_mode: False
+    tags: [
+        "pkmn",
+        "node",
+        "resnet",
+        "nn",
+        "hlosse",
+    ]
+
+cudnn:
+  benchmark: False
+  deterministic: True

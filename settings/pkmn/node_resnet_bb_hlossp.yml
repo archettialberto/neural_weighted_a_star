@@ -1,0 +1,59 @@
+exp_name: "node_resnet_bb_hlossp"
+max_epochs: 40
+seed: 1234
+batch_size: 16
+
+data:
+  dataset_name: "pkmn"
+  path: "/ext/data/pkmn"
+
+model:
+  name: "node"
+  params:
+    activation: "relu"
+    feature_extractor:
+      name: "resnet_pad"
+      params:
+        mean_features: True
+        in_channels: 3
+        out_channels: 1
+        x_max: 20
+        y_max: 20
+
+solver:
+  name: "bb"
+  params:
+    lambda_val: 20.0
+
+loss:
+  loss_component_1:
+    name: "hlossp"
+    params:
+      coefficient: 1.0
+
+early_stopping:
+  patience: 5
+  dataset: 'validation'
+  metric: 'validation/loss'
+  mode: 'min'
+  warmup: 10
+
+loggers:
+  img_logs: 16
+  tqdm:
+    dynamic_ncols: True
+
+  neptune:
+    project_name: "${env:NEPTUNE_USER}/pkmn-final"
+    offline_mode: False
+    tags: [
+        "pkmn",
+        "node",
+        "resnet",
+        "bb",
+        "hlossp",
+    ]
+
+cudnn:
+  benchmark: False
+  deterministic: True

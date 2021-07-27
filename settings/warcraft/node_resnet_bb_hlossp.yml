@@ -1,0 +1,57 @@
+exp_name: "node_resnet_bb_hlossp"
+max_epochs: 50
+seed: 1234
+batch_size: 64
+
+data:
+  dataset_name: "warcraft12"
+  path: "/ext/data/warcraft"
+
+model:
+  name: "node"
+  params:
+    activation: "relu"
+    feature_extractor:
+      name: "resnet"
+      params:
+        mean_features: True
+        in_channels: 3
+        out_channels: 1
+
+solver:
+  name: "bb"
+  params:
+    lambda_val: 20.0
+
+loss:
+  loss_component_1:
+    name: "hlossp"
+    params:
+      coefficient: 1.0
+
+early_stopping:
+  patience: 5
+  dataset: 'validation'
+  metric: 'validation/loss'
+  mode: 'min'
+  warmup: 10
+
+loggers:
+  img_logs: 32
+  tqdm:
+    dynamic_ncols: True
+
+  neptune:
+    project_name: "${env:NEPTUNE_USER}/warcraft-final"
+    offline_mode: False
+    tags: [
+        "warcraft",
+        "node",
+        "resnet",
+        "bb",
+        "hlossp",
+    ]
+
+cudnn:
+  benchmark: False
+  deterministic: True
